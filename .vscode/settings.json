@@ -1,0 +1,15 @@
+{
+  "git.scanRepositoryIgnoreDirs": ["node_modules", ".pnpm-store"],
+  "git.autoRepositoryDetection": true,
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.pnpm-store/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.pnpm-store": true
+  },
+  "files.exclude": {
+    "**/.pnpm-store": true
+  }
+}
