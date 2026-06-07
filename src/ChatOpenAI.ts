@@ -9,7 +9,6 @@ export interface ToolCall {
     function: {
         name: string;
         arguments: string;
-        
     };
 }
 
