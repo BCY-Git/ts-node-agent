@@ -1,3 +1,4 @@
+import ollama from "ollama";
 import VectorStore from "./VectorStore.js";
 
 export default class EmbeddingRetrivers {
@@ -22,20 +23,19 @@ export default class EmbeddingRetrivers {
         return embedding;
     }
     private async embed(document: string): Promise<number[]> {
-        const response = await fetch(`${process.env.OLLAMA_API_URL}/embedding`, {
+        const response = await fetch(`${process.env.OLLAMA_API_URL}/api/embeddings`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                'Authorization': `Bearer ${process.env.OLLAMA_API_KEY}`
             },
             body: JSON.stringify({
                 model: this.embeddingModel,
-                input: document,
+                prompt: document,  // Ollama embeddings API 使用 prompt 而不是 input
             }),
         });
         const data = await response.json();
-        console.log(data.data[0].embedding);
-        return data.data[0].embedding;
+        console.log(data.embedding);  // 返回的是 { embedding: [...] }
+        return data.embedding;
     }
 
 

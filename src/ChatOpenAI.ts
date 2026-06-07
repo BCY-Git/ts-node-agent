@@ -60,6 +60,7 @@ export class ChatOpenAI {
                         tool_calls.push({id:'', function:{name:'', arguments:''}});
                     }
                     let currentCall = tool_calls[tool_call.index];
+                    if (tool_call.id) currentCall.id += tool_call.id;
                     if (tool_call.function?.name) currentCall.function.name += tool_call.function.name;
                     if (tool_call.function?.arguments) currentCall.function.arguments += tool_call.function.arguments;
                     
