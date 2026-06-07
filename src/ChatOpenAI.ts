@@ -39,8 +39,9 @@ export class ChatOpenAI {
             tools: this.getToolsDefinition(),
         });
         let content = "";
+        let reasoning_content = "";
         let tool_calls: ToolCall[] = [];
-        logTitle("response")
+        logTitle("response.stream")
         for await (const chunk of stream) {
             const delta = chunk.choices[0].delta;
             if (delta.content) {
@@ -48,8 +49,12 @@ export class ChatOpenAI {
                 content += chunkContent;//把delta.content加到content
                 process.stdout.write(chunkContent);//这里的process.stdout.write是把chunkContent写到控制台
             }
+            // @ts-ignore - DeepSeek API 返回 reasoning_content
+            if (delta.reasoning_content) {
+                // @ts-ignore
+                reasoning_content += delta.reasoning_content;
+            }
             if (delta.tool_calls) {
-                logTitle("tool_calls")
                 for (const tool_call of delta.tool_calls) {
                     if(tool_calls.length<=tool_call.index){
                         tool_calls.push({id:'', function:{name:'', arguments:''}});
@@ -61,15 +66,33 @@ export class ChatOpenAI {
                 }
             }
         }
-        this.messages.push({ role: "assistant", content: content, tool_calls: tool_calls.map(call => ({ id: call.id, type: "function", function: { name: call.function.name, arguments: call.function.arguments } })) });
+        // @ts-ignore - DeepSeek API 需要 reasoning_content
+        this.messages.push({ 
+            role: "assistant", 
+            content: content,
+            reasoning_content: reasoning_content || undefined,
+            tool_calls: tool_calls.map(call => ({ id: call.id, type: "function", function: { name: call.function.name, arguments: call.function.arguments } })) 
+        } as any);
         return { content, tool_calls };
     }
 
     private getToolsDefinition() {
         return this.tools.map(tool => ({
             type: "function" as const,
-            function: tool,
+            function: {
+                name: tool.name,
+                description: tool.description,
+                parameters: tool.inputSchema,
+            },
         }));
+    }
+
+    appendToolResult(toolCallId: string, result: string) {
+        this.messages.push({
+            role: "tool",
+            tool_call_id: toolCallId,
+            content: result,
+        });
     }
 
 }

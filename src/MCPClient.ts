@@ -13,7 +13,7 @@ export class MCPClient {
     this.mcp = new Client({ name: "mcp-client-cli", version: "1.0.0" });
     this.command = command;
     this.args = args;
-  }//这个构造器的作用主要是
+  }
   
 
   public async initMCP() {
@@ -26,6 +26,10 @@ export class MCPClient {
 
   public getTools(): Tool[] {
     return this.tools;
+  }
+
+  public async callTool(name: string, params: Record<string, unknown>) {
+    return await this.mcp.callTool({ name, arguments: params });
   }
 
 
@@ -43,7 +47,7 @@ export class MCPClient {
         name: tool.name,
         description: tool.description,
         inputSchema: tool.inputSchema,
-      };
+      };//这里的return的tool对象是Tool类型
     });
     console.log(
       "Connected to server with tools:",
